@@ -1,36 +1,35 @@
 <?php
 
-namespace App;
+namespace App\Model;
 
 class Batch
 {
-    private array $allocations = [];
+    private \Ds\Set $allocations;
 
     private int $purchasedQuantity = 0;
 
     public function __construct(
-        private readonly string     $reference,
-        private readonly string     $sku,
+        private readonly string $reference,
+        private readonly string $sku,
         int $quantity,
         private readonly ?\DateTime $eta = null,
     )
     {
         $this->purchasedQuantity = $quantity;
+        $this->allocations = new \Ds\Set();
     }
 
     public function allocate(OrderLine $line): void
     {
-        if ($this->canAllocate($line)) {
-            $this->allocations[] = $line;
+        if ($this->canAllocate($line) && !$this->allocations->contains($line)) {
+            $this->allocations->add($line);
         }
     }
 
     public function deallocate(OrderLine $line): void
     {
-        foreach ($this->allocations as $key => $allocation) {
-            if ($allocation === $line) {
-                unset($this->allocations[$key]);
-            }
+        if ($this->allocations->contains($line)) {
+            $this->allocations->remove($line);
         }
     }
 
@@ -40,7 +39,7 @@ class Batch
     }
 
     public function getAllocatedQuantity(): int {
-        return array_reduce($this->allocations, function ($sum, $line) {
+        return array_reduce($this->allocations->toArray(), function ($sum, $line) {
             return $sum + $line->getQuantity();
         }, 0);
     }

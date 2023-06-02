@@ -2,8 +2,8 @@
 
 namespace App\Tests;
 
-use App\Batch;
-use App\OrderLine;
+use App\Model\Batch;
+use App\Model\OrderLine;
 use PHPUnit\Framework\TestCase;
 
 final class BatchTest extends TestCase
@@ -60,6 +60,15 @@ final class BatchTest extends TestCase
     {
         list($batch, $unallocated_line) = $this->makeBatchAndLine("DECORATIVE-TRINKET", 20, 2);
         $batch->deallocate($unallocated_line);
+
         $this->assertSame(20, $batch->getAvailableQuantity());
+    }
+
+    public function test_allocation_is_idempotent(): void {
+        [$batch, $line] = $this->makeBatchAndLine("ANGULAR-DESK", 20, 2);
+        $batch->allocate($line);
+        $batch->allocate($line);
+
+        $this->assertSame(18, $batch->getAvailableQuantity());
     }
 }
