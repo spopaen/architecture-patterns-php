@@ -14,4 +14,9 @@ class OrderLine
     {
         return $this->quantity;
     }
+
+    public function getSku(): string
+    {
+        return $this->sku;
+    }
 }
