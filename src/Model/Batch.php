@@ -47,4 +47,14 @@ class Batch
     public function getAvailableQuantity(): int {
         return $this->purchasedQuantity - $this->getAllocatedQuantity();
     }
+
+    public function getReference(): string
+    {
+        return $this->reference;
+    }
+
+    public function getEta(): ?\DateTime
+    {
+        return $this->eta;
+    }
 }
